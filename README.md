@@ -4,7 +4,7 @@
 [Yue Li](https://liyuesolo.github.io/)\*, [Xuan Li](https://xuan-li.github.io/)\*, [Minchen Li](https://www.seas.upenn.edu/~minchenl/)\*, [Yixin Zhu](https://yzhu.io/), [Bo Zhu](https://www.dartmouth.edu/~boolzhu/), [Chenfanfu Jiang](https://www.seas.upenn.edu/~cffjiang/) <br>
 \* *Equal contributions*
 
-This repo is a MATLAB version of LETO in 2D with linear elasticity. The high-performance and more complete version in C++ will be open sourced later.
+This repo is a **88-line** MATLAB version of LETO in 2D with linear elasticity. The high-performance and more complete version in C++ will be open sourced later.
 
 [[Paper]](https://arxiv.org/pdf/2003.01215.pdf)
 [[Video]](https://www.youtube.com/watch?v=O43tASS9DXQ)
