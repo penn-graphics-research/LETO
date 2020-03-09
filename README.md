@@ -1,3 +1,5 @@
+![](LETO_teaser.png)
+
 # LETO: Hybrid Lagrangian-Eulerian Method for Topology Optimization
 [Yue Li](https://liyuesolo.github.io/)\*, [Xuan Li](https://xuan-li.github.io/)\*, [Minchen Li](https://www.seas.upenn.edu/~minchenl/)\*, [Yixin Zhu](https://yzhu.io/), [Bo Zhu](https://www.dartmouth.edu/~boolzhu/), [Chenfanfu Jiang](https://www.seas.upenn.edu/~cffjiang/) <br>
 \* Equal contributions
