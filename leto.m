@@ -38,7 +38,7 @@ iK = reshape(kron(edofMat,ones(8,1))',64*nelx*nely,1);
 jK = reshape(kron(edofMat,ones(1,8))',64*nelx*nely,1);
 xold1 = carriers; xold2 = xold1; low = xold1; upp = xold1; % mma intermediate vars
 iter = 0; changes = 1e10 * ones(10,1); relCh = 1;
-while (relCh > 1e-3 && iter < 10)
+while (relCh > 1e-3 && iter < 200)
     iter = iter + 1;
     dmPow = min(ceil(iter/20), 10); % power of the density map
     baseNode = round(carriers(1:2, :)) + 1;
