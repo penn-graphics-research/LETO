@@ -80,7 +80,7 @@ while epsi > tol
         grad = - grad - epsi ./ lam;
         % DualHess
         PQ = pij ./ (upp - xval).^2 - qij ./ (xval - low).^2;
-        df2 = -1 ./ (2 * pjlam ./ (upp - xval).^3 + 2 * qjlam ./ (xval - low) .^3);
+        df2 = -0.5 ./ (pjlam ./ (upp - xval).^3 + qjlam ./ (xval - low) .^3);
         xp = (sqrt(pjlam) .* low + sqrt(qjlam) .* upp) ./ (sqrt(pjlam) + sqrt(qjlam));
         df2(xp < alpha) = 0;
         df2(xp > beta) = 0;

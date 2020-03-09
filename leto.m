@@ -5,17 +5,14 @@ Emin = 1e-6;
 nu = 0.3;
 %% Initialize carrier particles and load setup.
 [xc, yc] = meshgrid(-2:0.5:nelx+2, -2:0.5:nely+2);
-dc = 0.16 * volfrac * ones(1, numel(xc));
-carriers = [xc(:)'; yc(:)'; dc]; % each column corresponds to a single carrier particle.
+carriers = [xc(:)'; yc(:)'; 0.16 * volfrac * ones(1, numel(xc))]; % each column corresponds to a single carrier particle.
 F = sparse(2 * (nely + 1) * (nelx + 1), 1, -1, 2*(nely+1)*(nelx+1),1);
 U = zeros(2*(nely+1)*(nelx+1), 1);
 fixeddofs = 1:2*nely;
 alldofs = 1:2*(nely+1)*(nelx+1);
 freedofs = setdiff(alldofs,fixeddofs);
 %% Physical model
-mu = E0 / (1 + nu) / 2;
-lambda = E0 * nu / (1 + nu) / (1 - 2 * nu);
-dPdF = [2 * mu + lambda, 0, 0, lambda; 0, mu, mu, 0; 0, mu, mu, 0; lambda, 0, 0, 2 * mu + lambda];
+dPdF = E0 / (1+nu) / (1-2*nu) * [1-nu, 0, 0, nu; 0, 1/2-nu, 1/2-nu, 0; 0, 1/2-nu, 1/2-nu, 0; nu, 0, 0, 1-nu];
 KE = {zeros(8), zeros(8), zeros(8), zeros(8)};
 localXq = [0 0 1 1; 0 1 0 1] * 0.5 + 0.25;
 for iq = 1:4
@@ -41,7 +38,7 @@ iK = reshape(kron(edofMat,ones(8,1))',64*nelx*nely,1);
 jK = reshape(kron(edofMat,ones(1,8))',64*nelx*nely,1);
 xold1 = carriers; xold2 = xold1; low = xold1; upp = xold1; % mma intermediate vars
 iter = 0; changes = 1e10 * ones(10,1); relCh = 1;
-while (relCh > 1e-3 && iter < 200)
+while (relCh > 1e-3 && iter < 10)
     iter = iter + 1;
     dmPow = min(ceil(iter/20), 10); % power of the density map
     baseNode = round(carriers(1:2, :)) + 1;
@@ -58,12 +55,12 @@ while (relCh > 1e-3 && iter < 200)
     R = vecnorm(carrierShift)/1.25; % the spline radius is set as 1.25 dx
     W = zeros(size(R)); dW_div_R = zeros(size(R));
     seg1 = R < 1; seg2 = (R < 2) & (R >= 1); 
-    W(seg1) = 15 / (7 * pi) * (R(seg1) .^ 3 / 2 - R(seg1) .^ 2 + 2 / 3);
-    W(seg2) = 15 / (7 * pi) * (2 - R(seg2)) .^ 3 / 6;
+    W(seg1) = 15 / (7 * pi) * (R(seg1).^3 / 2 - R(seg1).^2 + 2 / 3);
+    W(seg2) = 5 / (14 * pi) * (2 - R(seg2)).^3;
     dW_div_R(seg1) = 15 / (7 * pi) * (3 * R(seg1) / 2 - 2);
-    dW_div_R(seg2) = - 0.5 * 15 / (7 * pi) * (2 - R(seg2)) .^ 2 ./ R(seg2);
+    dW_div_R(seg2) = - 15 / (14 * pi) * (2 - R(seg2)) .^ 2 ./ R(seg2);
     accuRho = reshape(W, 36 * 4, []) .* carriers(3,:);
-    quadRhoNaive = sparse(pollutedQuadIndex(:), ones(numel(pollutedQuadIndex), 1), accuRho(:));
+    quadRhoNaive = accumarray(pollutedQuadIndex(:), accuRho(:));
     [quadRho, dDM] = density_map(quadRhoNaive, dmPow);
     quadRho = reshape(quadRho, 4, nelx * nely); dDM = reshape(dDM, 4, nelx * nely);
     dQuadRhoNaiveCom = [(reshape(repmat(carriers(3, :), 36*4, 1), size(W)) .* dW_div_R / 1.25^2) .* carrierShift; W];   
@@ -101,19 +98,14 @@ while (relCh > 1e-3 && iter < 200)
 end
 end
 function [rho, drho] = density_map(x, k)
-    rho = ones(length(x), 1);
-    drho = zeros(length(x), 1);
+    rho = ones(length(x), 1); drho = zeros(length(x), 1);
     if k == 1
         seg1 = x <= 0.9; seg2 = (0.9 < x) & (x < 1.1);
-        rho(seg1) = x(seg1);
-        rho(seg2) = -2.5 * (x(seg2) - 0.9).^ 2 + x(seg2);
-        drho(seg1) = 1;
-        drho(seg2) = -5 * (x(seg2) - 0.9) + 1; 
+        rho(seg1) = x(seg1); rho(seg2) = -2.5 * (x(seg2) - 0.9).^ 2 + x(seg2);
+        drho(seg1) = 1; drho(seg2) = -5 * (x(seg2) - 0.9) + 1; 
     else
         seg1 = x <= 0.5; seg2 = (x > 0.5) & (x < 1);
-        rho(seg1) = 0.5 * (2 * x(seg1)) .^ k;
-        rho(seg2) = 1 - 0.5 * (2 - 2 * x(seg2)) .^ k;
-        drho(seg1) = k * (2 * x(seg1)) .^ (k-1);
-        drho(seg2) = k * (2 - 2 * x(seg2)) .^ (k-1);
+        rho(seg1) = 0.5 * (2 * x(seg1)) .^ k; rho(seg2) = 1 - 0.5 * (2 - 2 * x(seg2)) .^ k;
+        drho(seg1) = k * (2 * x(seg1)) .^ (k-1); drho(seg2) = k * (2 - 2 * x(seg2)) .^ (k-1);
     end
 end
