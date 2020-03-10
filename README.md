@@ -52,3 +52,14 @@ The result of LETO with half of the resolution (converged with 111 iterations):
 ![leto](results/LETO_60x20.png)
 
 As we can see LETO generates more intricate structures than SIMP with less iteration count using even half of the simulation resolution. With multiple density samples in each cell, LETO effectively achieves sub-cell resolution.
+
+
+# Bibtex
+```
+@article{li2020leto,
+  title={LETO: Hybrid Lagrangian-Eulerian Method for Topology Optimization},
+  author={Li, Yue and Li, Xuan and Li, Minchen and Zhu, Yixin and Zhu, Bo and Jiang, Chenfanfu},
+  journal={arXiv preprint arXiv:2003.01215},
+  year={2020}
+}
+```
