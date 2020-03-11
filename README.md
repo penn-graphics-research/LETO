@@ -32,7 +32,7 @@ With this MATLAB implementation we compare LETO with SIMP ([topo88.m](http://www
 The Dirichlet and Neumann boundary conditions are defined as (in both ```leto.m``` and ```top88.m```):
 ```Matlab
 F = sparse(2 * (nely + 1) * (nelx + 1), 1, -1, 2*(nely+1)*(nelx+1),1);
-fixeddofs = 1:2*nely;
+freedofs = setdiff(1:2*(nely+1)*(nelx+1),1:2*nely);
 ```
 
 We compare SIMP to LETO with the same and half of the resolution:
